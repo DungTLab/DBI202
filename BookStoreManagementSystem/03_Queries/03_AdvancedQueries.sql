@@ -4,3 +4,10 @@ SELECT customer_id,
 FROM ORDERS
 GROUP BY customer_id;
 
+
+-- Calculate total quantity of books sold
+SELECT SUM(quantity) AS total_books_sold
+FROM ORDER_DETAIL;
+
+
+
