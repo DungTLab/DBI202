@@ -1,3 +1,21 @@
+/* Book queries - Duc Anh*/
+
+-- Advanced Queries for Book Store Management System
+SELECT *
+FROM BOOK
+WHERE book_id NOT IN (
+    SELECT book_id FROM ORDER_DETAIL
+);
+
+-- Find all books that are more expensive than the average price of all books
+SELECT *
+FROM BOOK
+WHERE price > (
+    SELECT AVG(price) FROM BOOK
+);
+
+/* Author queries - Dung*/
+
 SELECT a.name, COUNT(ba.book_id) AS total_books
 From AUTHOR a
 JOIN BOOK_AUTHOR ba ON a.author_id = ba.author_id
