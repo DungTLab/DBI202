@@ -22,6 +22,19 @@ JOIN BOOK_AUTHOR ba ON a.author_id = ba.author_id
 GROUP BY a.name
 ORDER BY total_books DESC;
 
+/* Orders queries - Duy*/
+
+-- Count how many orders each customer made
+SELECT customer_id,
+       COUNT(order_id) AS total_orders
+FROM ORDERS
+GROUP BY customer_id;
+
+
+-- Calculate total quantity of books sold
+SELECT SUM(quantity) AS total_books_sold
+FROM ORDER_DETAIL;
+
 /* Order_Detail quetry - Giac*/
 
 /*SUBQUERY*/
