@@ -1,3 +1,7 @@
+SELECT * FROM AUTHOR
+WHERE nationality = 'Vietnam' 
+OR	  nationality = 'UK';
+
 /* Order_Detail quetry - Giac*/
 
 /*BASIC QUERY*/
@@ -19,3 +23,4 @@ WHERE price > 20
 -- Calculate total for each lines:
 SELECT order_id, book_id, quantity, price, quantity * price AS total
 FROM ORDER_DETAIL;
+

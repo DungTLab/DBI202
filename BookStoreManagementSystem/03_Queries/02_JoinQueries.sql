@@ -1,3 +1,9 @@
+
+SELECT b.title, a.name
+FROM BOOK b
+JOIN BOOK_AUTHOR ba ON b.book_id = ba.book_id
+JOIN AUTHOR a ON ba.author_id = a. author_id;
+
 /* Order_Detail quetry - Giac*/
 
 /*GROUP BY + HAVING QUERY*/
@@ -33,3 +39,4 @@ FROM ORDER_DETAIL od
 JOIN ORDERS o ON od.order_id = o.order_id
 JOIN CUSTOMER c ON o.customer_id = c.customer_id
 GROUP BY c.name;
+
