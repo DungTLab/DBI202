@@ -23,4 +23,4 @@ BEGIN
     FROM BOOK b
     JOIN inserted i ON b.book_id = i.book_id;
 END;
-GO
+GO 
