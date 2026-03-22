@@ -73,5 +73,38 @@ BEGIN
 END;
 GO
 
+/* -----------------------------------------------------------------------------
+Procedure: sp_RemoveBookFromOrder
+Purpose: Removes a specific book from an order detail.
+Note: The trg_Delete_OrderDetail trigger will automatically restore the stock.
+----------------------------------------------------------------------------- */
+CREATE PROCEDURE sp_RemoveBookFromOrder
+    @order_id INT,           -- The ID of the target order
+    @book_id INT             -- The ID of the book to be removed
+AS
+BEGIN
+    BEGIN TRY
+        -- Start a transaction
+        BEGIN TRANSACTION;
+
+        -- Delete the specific detail record. 
+        -- The trigger will automatically return the deleted quantity back to the BOOK inventory.
+        DELETE FROM ORDER_DETAIL
+        WHERE order_id = @order_id AND book_id = @book_id;
+
+        -- Commit the transaction upon success
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback if an error occurs
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        
+        -- Pass the error up to the application
+        THROW;
+    END CATCH
+END;
+GO
+
 
 
