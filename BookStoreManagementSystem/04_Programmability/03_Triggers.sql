@@ -1,37 +1,45 @@
--- Trigger: Prevent deleting a customer if they have related orders.(Trọng)
--- Type: INSTEAD OF DELETE (intercepts the delete attempt and applies custom logic).
+/* =========================================================================
+   Author: Nguyen Phu Trong
+   Trigger: trg_Prevent_Delete_Customer
+   Table: CUSTOMER
+   Description: Prevent deleting a customer if they have related orders.
+   ========================================================================= */
 CREATE TRIGGER trg_Prevent_Delete_Customer
 ON CUSTOMER
 INSTEAD OF DELETE
 AS
 BEGIN
-    -- Check whether any customer in the DELETE set appears in ORDERS.
+    -- Check whether any customer in the DELETE set appears in the ORDERS table
     IF EXISTS (
         SELECT 1
         FROM deleted d
         JOIN ORDERS o ON d.customer_id = o.customer_id
     )
     BEGIN
-        -- Block the operation with a business-rule error.
+        -- Block the operation with a business-rule error
         RAISERROR ('Cannot delete customer with existing orders.', 16, 1);
         RETURN;
-    END
+    END;
 
-    -- If no related orders exist, proceed with deleting the target customer rows.
+    -- If no related orders exist, proceed with deleting the target customer rows
     DELETE FROM CUSTOMER
     WHERE customer_id IN (SELECT customer_id FROM deleted);
 END;
 GO
 
-/* ==========================================================
-   1. TRIGGER INSERT (DUY) - XỬ LÝ KHI THÊM CHI TIẾT ĐƠN HÀNG
-========================================================== */
+
+/* =========================================================================
+   Author: Huynh Nhat Duy
+   Trigger: trg_Insert_OrderDetail
+   Table: ORDER_DETAIL
+   Description: Handle inventory updates when a new order detail is inserted.
+   ========================================================================= */
 CREATE TRIGGER trg_Insert_OrderDetail
 ON ORDER_DETAIL
 AFTER INSERT
 AS
 BEGIN
-    -- Kiểm tra tồn kho
+    -- Check stock availability
     IF EXISTS (
         SELECT 1
         FROM inserted i
@@ -44,7 +52,7 @@ BEGIN
         RETURN;
     END;
 
-    -- Trừ tồn kho
+    -- Deduct the ordered quantity from the book stock
     UPDATE b
     SET b.quantity = b.quantity - i.quantity
     FROM BOOK b
@@ -52,15 +60,19 @@ BEGIN
 END;
 GO
 
-/* ==========================================================
-   2. TRIGGER DELETE (GIÁC) - XỬ LÝ KHI XÓA CHI TIẾT ĐƠN HÀNG
-========================================================== */
+
+/* =========================================================================
+   Author: Tran Huynh Giac
+   Trigger: trg_Delete_OrderDetail
+   Table: ORDER_DETAIL
+   Description: Restore inventory when an order detail is deleted.
+   ========================================================================= */
 CREATE TRIGGER trg_Delete_OrderDetail
 ON ORDER_DETAIL
 AFTER DELETE
 AS
 BEGIN
-    -- Add the deleted quantity back to the stock
+    -- Add the deleted quantity back to the book stock
     UPDATE b
     SET b.quantity = b.quantity + d.quantity
     FROM BOOK b
@@ -68,9 +80,13 @@ BEGIN
 END;
 GO
 
-/* ==========================================================
-   3. TRIGGER UPDATE (GIÁC) - XỬ LÝ KHI SỬA CHI TIẾT ĐƠN HÀNG
-========================================================== */
+
+/* =========================================================================
+   Author: Tran Huynh Giac
+   Trigger: trg_Update_OrderDetail
+   Table: ORDER_DETAIL
+   Description: Handle inventory updates and prevent book_id changes during updates.
+   ========================================================================= */
 CREATE TRIGGER trg_Update_OrderDetail
 ON ORDER_DETAIL
 AFTER UPDATE
@@ -80,8 +96,7 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM inserted i
-        JOIN deleted d 
-            ON i.order_id = d.order_id
+        JOIN deleted d ON i.order_id = d.order_id
         WHERE i.book_id <> d.book_id
     )
     BEGIN
@@ -96,11 +111,9 @@ BEGIN
     SET b.quantity = b.quantity + d.quantity - i.quantity
     FROM BOOK b
     JOIN inserted i ON b.book_id = i.book_id
-    JOIN deleted d 
-        ON i.order_id = d.order_id
-        AND i.book_id = d.book_id;
+    JOIN deleted d ON i.order_id = d.order_id AND i.book_id = d.book_id;
 
-    -- Ensure stock does not become negative
+    -- Ensure stock does not become negative after the adjustment
     IF EXISTS (
         SELECT 1
         FROM BOOK
