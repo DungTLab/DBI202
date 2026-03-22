@@ -1,76 +1,99 @@
-/* Book queries - Duc Anh*/
+/* =========================================================================
+   Table: BOOK
+   Author: Duc Anh
+   ========================================================================= */
 
--- Advanced Queries for Book Store Management System
+/* ADVANCED QUERIES */
+
+-- Retrieve books that have never been ordered
 SELECT *
 FROM BOOK
 WHERE book_id NOT IN (
-    SELECT book_id FROM ORDER_DETAIL
+    SELECT book_id 
+    FROM ORDER_DETAIL
 );
 
--- Find all books that are more expensive than the average price of all books
+-- Retrieve books with a price higher than the overall average book price
 SELECT *
 FROM BOOK
 WHERE price > (
-    SELECT AVG(price) FROM BOOK
+    SELECT AVG(price) 
+    FROM BOOK
 );
 
-/* Author queries - Dung*/
 
+/* =========================================================================
+   Table: AUTHOR
+   Author: Dung
+   ========================================================================= */
+
+-- Count the total number of books written by each author and order by the highest count
 SELECT a.name, COUNT(ba.book_id) AS total_books
-From AUTHOR a
+FROM AUTHOR a
 JOIN BOOK_AUTHOR ba ON a.author_id = ba.author_id
 GROUP BY a.name
 ORDER BY total_books DESC;
 
-/* Orders queries - Duy*/
 
--- Count how many orders each customer made
+/* =========================================================================
+   Table: ORDERS
+   Author: Duy
+   ========================================================================= */
+
+-- Count the total number of orders placed by each customer
 SELECT customer_id,
        COUNT(order_id) AS total_orders
 FROM ORDERS
 GROUP BY customer_id;
 
-
--- Calculate total quantity of books sold
+-- Calculate the total quantity of all books sold across all orders
 SELECT SUM(quantity) AS total_books_sold
 FROM ORDER_DETAIL;
 
-/* Order_Detail quetry - Giac*/
 
-/*SUBQUERY*/
+/* =========================================================================
+   Table: ORDER_DETAIL
+   Author: Giac
+   ========================================================================= */
 
--- Select books having greatest total sold:
+/* SUBQUERIES */
+
+-- Retrieve the book(s) with the highest total quantity sold
 SELECT b.title, SUM(od.quantity) AS total_sold
 FROM ORDER_DETAIL od
 JOIN BOOK b ON od.book_id = b.book_id
 GROUP BY b.title
 HAVING SUM(od.quantity) = (
-	SELECT MAX(total_sold)
-	FROM (
-		SELECT SUM(quantity) AS total_sold
-		FROM ORDER_DETAIL
-		GROUP BY book_id
-	) AS temp
+    SELECT MAX(total_sold)
+    FROM (
+        SELECT SUM(quantity) AS total_sold
+        FROM ORDER_DETAIL
+        GROUP BY book_id
+    ) AS temp
 );
 
--- Select orders having greatest total amount
+-- Retrieve the order(s) with the highest total amount spent
 SELECT order_id
 FROM ORDER_DETAIL 
 GROUP BY order_id
 HAVING SUM(quantity * price) = (
-	SELECT MAX(total_amount)
-	FROM (
-		SELECT SUM(quantity * price) AS total_amount
-		FROM ORDER_DETAIL
-		GROUP BY order_id
-	) AS temp
+    SELECT MAX(total_amount)
+    FROM (
+        SELECT SUM(quantity * price) AS total_amount
+        FROM ORDER_DETAIL
+        GROUP BY order_id
+    ) AS temp
 );
 
-/* Customer queries - Trong*/
 
-/* Advanced Queries for Customer Table */
+/* =========================================================================
+   Table: CUSTOMER
+   Author: Trong
+   ========================================================================= */
 
-/* show the top 5 customers who have spent the most money on orders */
+/* ADVANCED QUERIES */
+
+-- Retrieve the top 5 customers who have spent the most money, ordered by total spent
 SELECT TOP 5
     C.customer_id,
     C.name,
