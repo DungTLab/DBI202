@@ -38,3 +38,40 @@ BEGIN
 END;
 GO
 
+/* -----------------------------------------------------------------------------
+Procedure: sp_UpdateOrderDetailQuantity
+Purpose: Updates the quantity of a specific book in an order.
+Note: The trg_Update_OrderDetail trigger will automatically adjust the stock difference.
+----------------------------------------------------------------------------- */
+CREATE PROCEDURE sp_UpdateOrderDetailQuantity
+    @order_id INT,           -- The ID of the order containing the book
+    @book_id INT,            -- The ID of the book to be updated
+    @new_quantity INT        -- The new requested quantity
+AS
+BEGIN
+    BEGIN TRY
+        -- Start a transaction
+        BEGIN TRANSACTION;
+
+        -- Update the quantity in the ORDER_DETAIL table.
+        -- The trigger will handle stock compensation and rollback if stock becomes negative.
+        UPDATE ORDER_DETAIL
+        SET quantity = @new_quantity
+        WHERE order_id = @order_id AND book_id = @book_id;
+
+        -- Commit the transaction upon success
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback if an error occurs during the update or within the trigger
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        
+        -- Pass the error up to the application
+        THROW;
+    END CATCH
+END;
+GO
+
+
+
