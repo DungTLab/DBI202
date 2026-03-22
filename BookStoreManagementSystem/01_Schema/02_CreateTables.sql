@@ -1,15 +1,16 @@
 /* =========================================================================
-   TABLE CREATION (DDL)
+   PHASE 1: INDEPENDENT TABLES (No Foreign Keys)
    ========================================================================= */
 
--- Create the AUTHOR table to store author details
-CREATE TABLE AUTHOR (
-    author_id INT PRIMARY KEY,
+/* 1. Nguyễn Phú Trọng - Table: CUSTOMER */
+CREATE TABLE CUSTOMER (
+    customer_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    nationality VARCHAR(50)
+    phone VARCHAR(15),
+    email VARCHAR(100) UNIQUE
 );
 
--- Create the BOOK table to store book inventory and pricing
+/* 2. Nguyễn Trần Đức Anh - Table: BOOK */
 CREATE TABLE BOOK (
     book_id INT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
@@ -18,7 +19,27 @@ CREATE TABLE BOOK (
     quantity INT CHECK (quantity >= 0)
 );
 
--- Create the BOOK_AUTHOR junction table for the many-to-many relationship
+/* 3. Lê Tiến Dũng - Table: AUTHOR */
+CREATE TABLE AUTHOR (
+    author_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    nationality VARCHAR(50)
+);
+
+
+/* =========================================================================
+   PHASE 2: DEPENDENT TABLES LEVEL 1 (References Independent Tables)
+   ========================================================================= */
+
+/* 4. Huỳnh Nhật Duy - Table: ORDERS */
+CREATE TABLE ORDERS (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES CUSTOMER(customer_id)
+);
+
+/* 5. Lê Tiến Dũng - Table: BOOK_AUTHOR */
 CREATE TABLE BOOK_AUTHOR (
     book_id INT,
     author_id INT,
@@ -27,23 +48,12 @@ CREATE TABLE BOOK_AUTHOR (
     FOREIGN KEY (author_id) REFERENCES AUTHOR(author_id)
 );
 
--- Create the CUSTOMER table to store client contact information
-CREATE TABLE CUSTOMER (
-    customer_id INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(15),
-    email VARCHAR(100) UNIQUE
-);
 
--- Create the ORDERS table to track customer purchases
-CREATE TABLE ORDERS (
-    order_id INT PRIMARY KEY,
-    customer_id INT,
-    order_date DATE NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES CUSTOMER(customer_id)
-);
+/* =========================================================================
+   PHASE 3: DEPENDENT TABLES LEVEL 2 (References Level 1 Tables)
+   ========================================================================= */
 
--- Create the ORDER_DETAIL table to map specific books and quantities to an order
+/* 6. Trần Huỳnh Giác - Table: ORDER_DETAIL */
 CREATE TABLE ORDER_DETAIL (
     order_id INT,
     book_id INT,
