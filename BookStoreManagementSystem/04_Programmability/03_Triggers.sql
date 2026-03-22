@@ -1,14 +1,35 @@
-/*Order details trigger - Giac*/
+/* ==========================================================
+   1. TRIGGER INSERT (DUY) - XỬ LÝ KHI THÊM CHI TIẾT ĐƠN HÀNG
+========================================================== */
+CREATE TRIGGER trg_Insert_OrderDetail
+ON ORDER_DETAIL
+AFTER INSERT
+AS
+BEGIN
+    -- Kiểm tra tồn kho
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN BOOK b ON i.book_id = b.book_id
+        WHERE i.quantity > b.quantity
+    )
+    BEGIN
+        RAISERROR ('Not enough stock available.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END;
 
-/* 
-Trigger: Restore warehouse stock when ORDER_DETAIL is deleted
+    -- Trừ tồn kho
+    UPDATE b
+    SET b.quantity = b.quantity - i.quantity
+    FROM BOOK b
+    JOIN inserted i ON b.book_id = i.book_id;
+END;
+GO
 
-Purpose:
-- Return the quantity of books back to the warehouse (BOOK table)
-  when an order detail is removed.
-- Ensure stock consistency when items are canceled or deleted from an order.
-*/
-
+/* ==========================================================
+   2. TRIGGER DELETE (GIÁC) - XỬ LÝ KHI XÓA CHI TIẾT ĐƠN HÀNG
+========================================================== */
 CREATE TRIGGER trg_Delete_OrderDetail
 ON ORDER_DETAIL
 AFTER DELETE
@@ -22,15 +43,9 @@ BEGIN
 END;
 GO
 
-/* 
-Trigger: Update warehouse stock when ORDER_DETAIL is updated
-
-Purpose:
-- Adjust the book quantity in the warehouse (BOOK table) when an order detail is updated.
-- Prevent changing the book_id in an existing order detail.
-- Ensure that stock quantity never becomes negative.
-*/
-
+/* ==========================================================
+   3. TRIGGER UPDATE (GIÁC) - XỬ LÝ KHI SỬA CHI TIẾT ĐƠN HÀNG
+========================================================== */
 CREATE TRIGGER trg_Update_OrderDetail
 ON ORDER_DETAIL
 AFTER UPDATE
@@ -48,7 +63,7 @@ BEGIN
         RAISERROR ('Cannot change book in order detail.', 16, 1);
         ROLLBACK TRANSACTION;
         RETURN;
-    END
+    END;
 
     -- Adjust stock quantity:
     -- New stock = current stock + old quantity (returned) - new quantity (sold)
@@ -69,6 +84,6 @@ BEGIN
     BEGIN
         RAISERROR ('Stock cannot be negative.', 16, 1);
         ROLLBACK TRANSACTION;
-    END
+    END;
 END;
 GO
