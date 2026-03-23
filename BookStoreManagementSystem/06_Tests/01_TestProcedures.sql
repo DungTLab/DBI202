@@ -37,3 +37,26 @@ BEGIN CATCH
 END CATCH;
 
 
+PRINT '======================================================================';
+PRINT 'START TESTING: sp_UpdateOrderDetailQuantity';
+PRINT '======================================================================';
+
+-- -----------------------------------------------------------------------------
+-- TEST CASE 3: Increase order quantity successfully (Success)
+-- Objective: Order 1, Book 3 currently has 2 items, want to increase to 10 items (Add 8 items).
+-- Expected: ORDER_DETAIL is updated to 10, stock is further deducted by 8.
+-- -----------------------------------------------------------------------------
+PRINT '--- TEST 3: Increase quantity successfully ---';
+DECLARE @stock_before_3 INT, @stock_after_3 INT;
+SELECT @stock_before_3 = quantity FROM BOOK WHERE book_id = 3;
+PRINT '>> Book stock (ID 3) BEFORE update: ' + CAST(@stock_before_3 AS VARCHAR);
+
+EXEC sp_UpdateOrderDetailQuantity @order_id = 1, @book_id = 3, @new_quantity = 10;
+
+SELECT @stock_after_3 = quantity FROM BOOK WHERE book_id = 3;
+PRINT '>> Book stock (ID 3) AFTER update: ' + CAST(@stock_after_3 AS VARCHAR);
+IF (@stock_before_3 - 8 = @stock_after_3)
+    PRINT '[PASS] Stock adjusted and deducted correctly (deducted 8 more)!';
+ELSE 
+    PRINT '[FAIL] Stock calculation is incorrect!';
+
