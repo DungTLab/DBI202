@@ -50,29 +50,49 @@ The system is normalized up to the Third Normal Form (3NF) and consists of the f
 
 ---
 
-## 🚀 How to Run the Project
+## 📥 Getting Started (Fork & Clone)
 
-You can deploy the database using either the **Quick Setup** or the **Step-by-Step Setup**.
+To get a local copy of this project up and running, follow these steps using your terminal:
 
-### Option 1: Quick Setup (Recommended)
+1. **Fork the Repository**: Click the **Fork** button at the top right corner of this repository's GitHub page to create a copy in your own GitHub account.
+2. **Clone the Repository**:
+   Open your terminal and run the following command (replace `YOUR-USERNAME` with your actual GitHub username):
+   ```bash
+   git clone [https://github.com/YOUR-USERNAME/BookStoreManagementSystem.git](https://github.com/YOUR-USERNAME/BookStoreManagementSystem.git)
+Navigate to the Project Directory:
+Once the cloning process is complete, navigate into the project folder:
+
+Bash
+cd BookStoreManagementSystem
+🚀 How to Run the Project
+You can deploy the database using either the Quick Setup or the Step-by-Step Setup.
+
+Option 1: Quick Setup (Recommended)
 The easiest way to set up the entire database, tables, mock data, and programmability objects is to run the consolidated script.
-1. Open SQL Server Management Studio (SSMS) or Azure Data Studio.
-2. Open the file `05_Main/RunAll.sql`.
-3. Execute the script. 
-*(Note: This script will safely drop any existing database named `BookStoreManagementSystem` before creating a fresh instance).*
 
-### Option 2: Step-by-Step Setup
+Open SQL Server Management Studio (SSMS) or Azure Data Studio.
+
+Open the file 05_Main/RunAll.sql.
+
+Execute the script.
+(Note: This script will safely drop any existing database named BookStoreManagementSystem before creating a fresh instance).
+
+Option 2: Step-by-Step Setup
 If you want to evaluate the project phase-by-phase, execute the scripts in the following strict order to avoid dependency errors:
-1. `01_Schema/01_CreateDatabase.sql`
-2. `01_Schema/02_CreateTables.sql`
-3. `02_Data/01_InsertData.sql`
-4. `04_Programmability/01_StoredProcedures.sql`
-5. `04_Programmability/02_Triggers.sql`
 
----
+01_Schema/01_CreateDatabase.sql
 
-## ✨ Key Features
+01_Schema/02_CreateTables.sql
 
-* **Automated Inventory Management:** Triggers automatically deduct book stock upon new orders and restore stock if an order is canceled or updated.
-* **Strict Data Integrity:** Prevents the deletion of books or customers that are tied to existing order histories.
-* **Transactional Safety:** Stored procedures use `TRY...CATCH` blocks and `TRANSACTION` management to ensure complex operations (like canceling an entire order) are processed safely.
+02_Data/01_InsertData.sql
+
+04_Programmability/01_StoredProcedures.sql
+
+04_Programmability/02_Triggers.sql
+
+✨ Key Features
+Automated Inventory Management: Triggers automatically deduct book stock upon new orders and restore stock if an order is canceled or updated.
+
+Strict Data Integrity: Prevents the deletion of books or customers that are tied to existing order histories.
+
+Transactional Safety: Stored procedures use TRY...CATCH blocks and TRANSACTION management to ensure complex operations (like canceling an entire order) are processed safely.
