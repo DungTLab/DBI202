@@ -60,3 +60,22 @@ IF (@stock_before_3 - 8 = @stock_after_3)
 ELSE 
     PRINT '[FAIL] Stock calculation is incorrect!';
 
+-- -----------------------------------------------------------------------------
+-- TEST CASE 4: Decrease order quantity successfully (Success)
+-- Objective: Order 1, Book 3 currently has 10 items (after Test 3), want to decrease to 1 item.
+-- Expected: ORDER_DETAIL is updated to 1, stock is refunded by 9 items.
+-- -----------------------------------------------------------------------------
+PRINT '--- TEST 4: Decrease quantity successfully ---';
+DECLARE @stock_before_4 INT, @stock_after_4 INT;
+SELECT @stock_before_4 = quantity FROM BOOK WHERE book_id = 3;
+PRINT '>> Book stock (ID 3) BEFORE update: ' + CAST(@stock_before_4 AS VARCHAR);
+
+EXEC sp_UpdateOrderDetailQuantity @order_id = 1, @book_id = 3, @new_quantity = 1;
+
+SELECT @stock_after_4 = quantity FROM BOOK WHERE book_id = 3;
+PRINT '>> Book stock (ID 3) AFTER update: ' + CAST(@stock_after_4 AS VARCHAR);
+IF (@stock_before_4 + 9 = @stock_after_4)
+    PRINT '[PASS] Stock adjusted and increased correctly (refunded 9)!';
+ELSE 
+    PRINT '[FAIL] Stock calculation is incorrect!';
+
