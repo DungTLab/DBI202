@@ -1,4 +1,4 @@
--- Duy
+-- Duy Ne
 PRINT '=====================================================';
 PRINT 'TEST CASE 1: SUCCESSFUL INSERT (STOCK DEDUCTION)';
 PRINT '=====================================================';
