@@ -56,14 +56,14 @@ To get a local copy of this project up and running, follow these steps using you
 
 1. **Fork the Repository**: Click the **Fork** button at the top right corner of this repository's GitHub page to create a copy in your own GitHub account.
 2. **Clone the Repository**:
-   Open your terminal and run the following command (replace `YOUR-USERNAME` with your actual GitHub username):
+   Open your terminal and run the following command:
    ```bash
-   git clone [https://github.com/YOUR-USERNAME/BookStoreManagementSystem.git](https://github.com/YOUR-USERNAME/BookStoreManagementSystem.git)
+   git clone https://github.com/DungTLab/DBI202.git
 Navigate to the Project Directory:
 Once the cloning process is complete, navigate into the project folder:
 
 Bash
-cd BookStoreManagementSystem
+cd DBI202
 🚀 How to Run the Project
 You can deploy the database using either the Quick Setup or the Step-by-Step Setup.
 
