@@ -1,4 +1,16 @@
 /* =============================================================================
+AUTHOR: Huynh Nhat Duy (CE201224)
+ROLE: Supporter, ORDER
+*/
+
+/* -----------------------------------------------------------------------------
+Procedure: sp_CancelOrder
+Purpose: Cancel an entire order by deleting ORDER_DETAIL first, then ORDERS
+-----------------------------------------------------------------------------
+*/
+
+CREATE PROCEDURE sp_CancelOrder
+    @order_id INT
 AUTHOR: Nguyen Phu Trong (CE200340)
 ROLE: Supporter, CUSTOMER
 */
@@ -43,6 +55,11 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
+        -- Delete order details first (Trigger trg_Delete_OrderDetail handles stock restoration)
+        DELETE FROM ORDER_DETAIL WHERE order_id = @order_id;
+
+        -- Delete the main order record
+        DELETE FROM ORDERS WHERE order_id = @order_id;
         -- Insert new customer details
         INSERT INTO CUSTOMER (customer_id, name, phone, email)
         VALUES (@customer_id, @name, @phone, @email);
