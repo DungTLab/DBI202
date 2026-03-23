@@ -1,7 +1,18 @@
 /* =============================================================================
+AUTHOR: Nguyen Tran Duc Anh (CE20031)
+ROLE: Team Leader, BOOK
+*/
+
+/* -----------------------------------------------------------------------------
+Procedure: sp_BulkUpdateBookPrice
+Purpose: Bulk update prices for books published by its ID
+-----------------------------------------------------------------------------
+*/
+CREATE PROCEDURE sp_BulkUpdateBookPrice
+    @percentage_change DECIMAL(5,2),
+    @book_id INT
 AUTHOR: Le Tien Dung (CE201046)
 ROLE: Project Manager, AUTHOR
-=============================================================================
 */
 
 /* -----------------------------------------------------------------------------
@@ -15,6 +26,9 @@ AS
 BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
+        UPDATE BOOK
+        SET price = price * (1 + @percentage_change / 100)
+        WHERE book_id = @book_id;
 
         -- Validate if the author's books have already been sold
         IF EXISTS (
@@ -41,4 +55,5 @@ BEGIN
         THROW;
     END CATCH
 END;
+GO
 GO
