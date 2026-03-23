@@ -94,3 +94,30 @@ BEGIN CATCH
 END CATCH;
 
 
+PRINT '======================================================================';
+PRINT 'START TESTING: sp_RemoveBookFromOrder';
+PRINT '======================================================================';
+
+-- -----------------------------------------------------------------------------
+-- TEST CASE 6: Remove book from order successfully (Success)
+-- Objective: Remove book (ID 4 - 1984) previously bought (1 item) from Order ID 1.
+-- Expected: The record is deleted from ORDER_DETAIL, 1 item is refunded to book stock ID 4.
+-- -----------------------------------------------------------------------------
+PRINT '--- TEST 6: Remove order detail successfully ---';
+DECLARE @stock_before_6 INT, @stock_after_6 INT;
+SELECT @stock_before_6 = quantity FROM BOOK WHERE book_id = 4;
+PRINT '>> Book stock (ID 4) BEFORE deletion: ' + CAST(@stock_before_6 AS VARCHAR);
+
+EXEC sp_RemoveBookFromOrder @order_id = 1, @book_id = 4;
+
+SELECT @stock_after_6 = quantity FROM BOOK WHERE book_id = 4;
+PRINT '>> Book stock (ID 4) AFTER deletion: ' + CAST(@stock_after_6 AS VARCHAR);
+IF (@stock_before_6 + 1 = @stock_after_6)
+    PRINT '[PASS] Stock has been refunded correctly (added 1)!';
+ELSE 
+    PRINT '[FAIL] Stock calculation is incorrect!';
+    
+IF NOT EXISTS (SELECT 1 FROM ORDER_DETAIL WHERE order_id = 1 AND book_id = 4)
+    PRINT '[PASS] Data in ORDER_DETAIL has been successfully deleted!';
+ELSE
+    PRINT '[FAIL] Data in ORDER_DETAIL still exists!';
