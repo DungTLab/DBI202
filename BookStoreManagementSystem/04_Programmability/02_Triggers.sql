@@ -1,24 +1,32 @@
-/* Book triggers - Duc Anh*/
-
--- Prevent delete book information if it have been bought by customer:
+/* =========================================================================
+   Author: Duc Anh
+   Trigger: trg_Prevent_Delete_Book
+   Table: BOOK
+   Description: Prevent deleting a book if it has been bought (exists in ORDER_DETAIL).
+   ========================================================================= */
 CREATE TRIGGER trg_Prevent_Delete_Book
 ON BOOK
 INSTEAD OF DELETE
 AS
 BEGIN
+    -- Check if any book in the DELETE set appears in the ORDER_DETAIL table
     IF EXISTS (
         SELECT 1
         FROM deleted d
         JOIN ORDER_DETAIL od ON d.book_id = od.book_id
     )
     BEGIN
-        RAISERROR ('Cannot delete book that has been sold.', 16, 1);
+        RAISERROR ('Cannot delete a book that has already been sold.', 16, 1);
+        ROLLBACK TRANSACTION;
         RETURN;
     END
 
+    -- If no related orders exist, proceed with deleting the target books
     DELETE FROM BOOK
     WHERE book_id IN (SELECT book_id FROM deleted);
 END;
+GO
+
 /* =========================================================================
    Author: Nguyen Phu Trong
    Trigger: trg_Prevent_Delete_Customer
@@ -39,28 +47,28 @@ BEGIN
     BEGIN
         -- Block the operation with a business-rule error
         RAISERROR ('Cannot delete customer with existing orders.', 16, 1);
+        ROLLBACK TRANSACTION;
         RETURN;
     END;
 
-    -- If no related orders exist, proceed with deleting the target customer rows
+    -- If no related orders exist, proceed with deleting the target customers
     DELETE FROM CUSTOMER
     WHERE customer_id IN (SELECT customer_id FROM deleted);
 END;
 GO
 
-
 /* =========================================================================
    Author: Huynh Nhat Duy
    Trigger: trg_Insert_OrderDetail
    Table: ORDER_DETAIL
-   Description: Handle inventory updates when a new order detail is inserted.
+   Description: Deduct inventory stock when a new order detail is inserted.
    ========================================================================= */
 CREATE TRIGGER trg_Insert_OrderDetail
 ON ORDER_DETAIL
 AFTER INSERT
 AS
 BEGIN
-    -- Check stock availability
+    -- Check if ordered quantity exceeds available stock
     IF EXISTS (
         SELECT 1
         FROM inserted i
@@ -81,12 +89,11 @@ BEGIN
 END;
 GO
 
-
 /* =========================================================================
    Author: Tran Huynh Giac
    Trigger: trg_Delete_OrderDetail
    Table: ORDER_DETAIL
-   Description: Restore inventory when an order detail is deleted.
+   Description: Restore inventory stock when an order detail is deleted.
    ========================================================================= */
 CREATE TRIGGER trg_Delete_OrderDetail
 ON ORDER_DETAIL
@@ -101,12 +108,11 @@ BEGIN
 END;
 GO
 
-
 /* =========================================================================
    Author: Tran Huynh Giac
    Trigger: trg_Update_OrderDetail
    Table: ORDER_DETAIL
-   Description: Handle inventory updates and prevent book_id changes during updates.
+   Description: Handle inventory updates and prevent book_id changes.
    ========================================================================= */
 CREATE TRIGGER trg_Update_OrderDetail
 ON ORDER_DETAIL
@@ -121,7 +127,7 @@ BEGIN
         WHERE i.book_id <> d.book_id
     )
     BEGIN
-        RAISERROR ('Cannot change book in order detail.', 16, 1);
+        RAISERROR ('Cannot change book_id in an existing order detail.', 16, 1);
         ROLLBACK TRANSACTION;
         RETURN;
     END;
@@ -141,7 +147,7 @@ BEGIN
         WHERE quantity < 0
     )
     BEGIN
-        RAISERROR ('Stock cannot be negative.', 16, 1);
+        RAISERROR ('Stock cannot be negative after update.', 16, 1);
         ROLLBACK TRANSACTION;
     END;
 END;
