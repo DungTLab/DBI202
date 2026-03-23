@@ -22,3 +22,18 @@ IF (@stock_before_1 - 5 = @stock_after_1)
 ELSE 
     PRINT '[FAIL] Stock calculation is incorrect!';
 
+-- -----------------------------------------------------------------------------
+-- TEST CASE 2: Add book fails due to exceeding stock quantity (Blocked by Trigger)
+-- Objective: Add book ID 3 (Harry Potter 1) to Order ID 2 with a quantity of 9999.
+-- Expected: Trigger trg_Insert_OrderDetail raises error "Not enough stock available", ROLLBACK.
+-- -----------------------------------------------------------------------------
+PRINT '--- TEST 2: Add book fails (Out of stock) ---';
+BEGIN TRY
+    EXEC sp_AddBookToOrder @order_id = 2, @book_id = 3, @quantity = 9999, @price = 25.00;
+    PRINT '[FAIL] Error: Procedure was not blocked when out of stock!';
+END TRY
+BEGIN CATCH
+    PRINT '[PASS] Successfully blocked with message: ' + ERROR_MESSAGE();
+END CATCH;
+
+
