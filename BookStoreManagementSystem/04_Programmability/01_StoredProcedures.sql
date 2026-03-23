@@ -6,19 +6,19 @@ ROLE: Team Leader, BOOK
 
 /* -----------------------------------------------------------------------------
 Procedure: sp_BulkUpdateBookPrice
-Purpose: Bulk update prices for books published before a certain year
+Purpose: Bulk update prices for books published by its ID
 -----------------------------------------------------------------------------
 */
 CREATE PROCEDURE sp_BulkUpdateBookPrice
     @percentage_change DECIMAL(5,2),
-    @public_year_threshold INT
+    @book_id INT
 AS
 BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
         UPDATE BOOK
         SET price = price * (1 + @percentage_change / 100)
-        WHERE public_year < @public_year_threshold;
+        WHERE book_id = @book_id;
 
         COMMIT TRANSACTION;
     END TRY
