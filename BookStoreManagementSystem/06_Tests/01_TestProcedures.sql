@@ -79,3 +79,18 @@ IF (@stock_before_4 + 9 = @stock_after_4)
 ELSE 
     PRINT '[FAIL] Stock calculation is incorrect!';
 
+-- -----------------------------------------------------------------------------
+-- TEST CASE 5: Increase quantity fails due to insufficient stock (Blocked by Trigger)
+-- Objective: Update Order 1, Book 3 to a quantity of 5000.
+-- Expected: Trigger trg_Update_OrderDetail raises error "Stock cannot be negative", ROLLBACK.
+-- -----------------------------------------------------------------------------
+PRINT '--- TEST 5: Update fails (Negative stock) ---';
+BEGIN TRY
+    EXEC sp_UpdateOrderDetailQuantity @order_id = 1, @book_id = 3, @new_quantity = 5000;
+    PRINT '[FAIL] Error: Procedure was not blocked when exceeding stock!';
+END TRY
+BEGIN CATCH
+    PRINT '[PASS] Successfully blocked with message: ' + ERROR_MESSAGE();
+END CATCH;
+
+
