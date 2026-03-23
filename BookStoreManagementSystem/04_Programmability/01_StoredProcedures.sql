@@ -9,7 +9,7 @@ Procedure: sp_CancelOrder
 Purpose: Cancel an entire order by deleting ORDER_DETAIL first, then ORDERS
 -----------------------------------------------------------------------------
 */
-GO
+
 CREATE PROCEDURE sp_CancelOrder
     @order_id INT
 AS
@@ -31,4 +31,4 @@ BEGIN
         THROW;
     END CATCH
 END;
-
+GO
